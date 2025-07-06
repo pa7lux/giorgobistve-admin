@@ -1,7 +1,8 @@
 {
-  "/not-found": "app/not-found.js",
-  "/page": "app/page.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/_not-found": "app/_not-found.js",
   "/api/github/contributors/route": "app/api/github/contributors/route.js",
-  "/api/github/lyrics/route": "app/api/github/lyrics/route.js"
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/github/lyrics/[filename]/route": "app/api/github/lyrics/[filename]/route.js",
+  "/api/github/lyrics/route": "app/api/github/lyrics/route.js",
+  "/page": "app/page.js"
 }
