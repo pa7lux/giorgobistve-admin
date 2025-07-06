@@ -1,0 +1,40 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Stack
+
+- Next.js https://nextjs.org/docs
+- Tip Tap for wysiwig https://tiptap.dev/docs
+- UI components library Radix UI https://www.radix-ui.com/themes/docs/overview/getting-started
+
+
+# Requirements
+
+Small lightweight headless CRUD admin panel for https://github.com/pa7lux/giorgobistve repository with Wy
+
+## Fuctionality
+
+1. User authorizes with GitHub App
+2. System chacks if user is in https://github.com/pa7lux/giorgobistve contributors list using GitHub API
+	2.1 If user is not a contributor — Show component "Contact the admin"
+	2.2 If user is contributor, show the admin panel
+3. Admin panel should fetch the articles from https://github.com/pa7lux/giorgobistve/tree/master/public/lyrics and provide the ability to make CRUD operations on this files in this directory
+4. If user creates new file with admin panel, system automatically updates public/lyrics/index.json with. It adds a new object into the songs array in the file. Example format for object (alilo is a song name):
+{
+  "id": "alilo",
+  "title": "ალილო",
+  "titleLatin": "Alilo",
+  "description": "Traditional Georgian Christmas carol",
+  "file": "alilo.md"
+},
+5. If user delete a file from the folder, system updates public/lyrics/index.json it searches for the object with the filePath "file": "alilo.md" of deleted file and removes this object from the array
+6. All edits and update operations should use WYSIWIG mode or pure markdown mode. User can select this mode.
+7. After any of CRUD operations were made in UI, user should press "Publish" button
+8. After the "Publish" pressed the system make a push operation to the master branch of the repository
+9. Keep the App simple. Build only the functionality we really need in admin panel
+
+
+
+
