@@ -2,8 +2,8 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import { useState, useEffect } from 'react'
-import { Button, Card, Flex, Heading, Text, Avatar } from '@radix-ui/themes'
-import { ExitIcon, PlusIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-icons'
+import { Button, Card, Flex, Heading, Text, Avatar, TextField } from '@radix-ui/themes'
+import { ExitIcon, PlusIcon, Pencil1Icon, TrashIcon, MagnifyingGlassIcon, Cross1Icon } from '@radix-ui/react-icons'
 import { LyricsEditor } from './LyricsEditor'
 import { LyricsForm } from './LyricsForm'
 
@@ -11,6 +11,7 @@ interface LyricsFile {
   name: string
   path: string
   sha: string
+  content: string
 }
 
 interface Song {
@@ -35,7 +36,30 @@ export function AdminPanel() {
   const [loading, setLoading] = useState(true)
   const [editingFile, setEditingFile] = useState<string | null>(null)
   const [creatingNew, setCreatingNew] = useState(false)
+  const [filterTerm, setFilterTerm] = useState('')
 
+  // Create a map of filename to content for easy lookup
+  const contentMap = lyrics?.files?.reduce((map, file) => {
+    map[file.name] = file.content || ''
+    return map
+  }, {} as Record<string, string>) || {}
+
+  // Filter songs based on search term across all properties including content
+  const filteredSongs = lyrics?.index?.songs?.filter(song => {
+    if (!filterTerm) return true
+    
+    const searchTerm = filterTerm.toLowerCase()
+    const songContent = contentMap[song.file] || ''
+    
+    return (
+      song.id.toLowerCase().includes(searchTerm) ||
+      song.title.toLowerCase().includes(searchTerm) ||
+      song.titleLatin.toLowerCase().includes(searchTerm) ||
+      song.description.toLowerCase().includes(searchTerm) ||
+      song.file.toLowerCase().includes(searchTerm) ||
+      songContent.toLowerCase().includes(searchTerm)
+    )
+  }) || []
 
   useEffect(() => {
     fetchLyrics()
@@ -156,10 +180,43 @@ export function AdminPanel() {
             Create New Song
           </Button>
         </Flex>
+
+        {/* Filter Input */}
+        <div className="mb-6">
+          <Flex align="center" gap="2" className="max-w-md">
+            <div className="relative flex-1">
+              <TextField.Root size="3">
+                <TextField.Slot>
+                  <MagnifyingGlassIcon />
+                </TextField.Slot>
+                <TextField.Input
+                  placeholder="Search titles, content, descriptions..."
+                  value={filterTerm}
+                  onChange={(e) => setFilterTerm(e.target.value)}
+                />
+              </TextField.Root>
+            </div>
+            {filterTerm && (
+              <Button
+                variant="outline"
+                size="2"
+                onClick={() => setFilterTerm('')}
+                color="gray"
+              >
+                <Cross1Icon />
+              </Button>
+            )}
+          </Flex>
+          {filterTerm && (
+            <Text size="2" color="gray" className="mt-2">
+              Found {filteredSongs.length} song{filteredSongs.length !== 1 ? 's' : ''} matching "{filterTerm}"
+            </Text>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {lyrics?.index.songs.map((song) => (
+        {filteredSongs.map((song) => (
           <Card key={song.id} className="p-4">
             <div className="mb-4 grid grid-cols-1 gap-1">
               <Heading size="4" className="mb-2">
@@ -198,10 +255,13 @@ export function AdminPanel() {
         ))}
       </div>
 
-      {lyrics?.index.songs.length === 0 && (
+      {filteredSongs.length === 0 && !loading && (
         <Card className="p-8 text-center">
           <Text size="3" color="gray">
-            No songs found. Create your first song to get started.
+            {filterTerm 
+              ? `No songs found matching "${filterTerm}". Try a different search term.`
+              : "No songs found. Create your first song to get started."
+            }
           </Text>
         </Card>
       )}

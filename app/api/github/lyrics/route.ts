@@ -41,8 +41,34 @@ export async function GET(request: NextRequest) {
       ? contents.filter((item: any) => item.name.endsWith('.md'))
       : []
 
+    // Fetch content for each markdown file
+    const filesWithContent = await Promise.all(
+      markdownFiles.map(async (file: any) => {
+        try {
+          const { data: fileData } = await octokit.rest.repos.getContent({
+            owner: process.env.GITHUB_OWNER!,
+            repo: process.env.GITHUB_REPO!,
+            path: file.path,
+          })
+          
+          const content = Buffer.from((fileData as any).content, 'base64').toString()
+          
+          return {
+            ...file,
+            content
+          }
+        } catch (error) {
+          console.error(`Error fetching content for ${file.name}:`, error)
+          return {
+            ...file,
+            content: ''
+          }
+        }
+      })
+    )
+
     return NextResponse.json({ 
-      files: markdownFiles, 
+      files: filesWithContent, 
       index: indexContent,
       sha: (indexFile as any).sha 
     })
