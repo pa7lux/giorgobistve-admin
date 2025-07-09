@@ -218,14 +218,14 @@ export function AdminPanel() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSongs.map((song) => (
           <Card key={song.id} className="p-4">
-            <div className="mb-4 grid grid-cols-1 gap-1">
-              <Heading size="4" className="mb-2">
+            <div className="mb-4">
+              <Heading size="4" className="mb-2 block">
                 {song.titleLatin}
               </Heading>
-              <Text size="1" color="gray" className="mb-3">
+              <Text size="1" color="gray" className="mb-3 block">
                 {song.title}
               </Text>
-              <Text size="1" color="gray">
+              <Text size="1" color="gray" className="mb-3 block">
                 {song.description}
               </Text>
             </div>
