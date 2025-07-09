@@ -218,39 +218,41 @@ export function AdminPanel() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSongs.map((song) => (
           <Card key={song.id} className="p-4">
-            <div className="mb-4">
-              <Heading size="4" className="mb-2 block">
-                {song.titleLatin}
-              </Heading>
-              <Text size="1" color="gray" className="mb-3 block">
-                {song.title}
-              </Text>
-              <Text size="1" color="gray" className="mb-3 block">
-                {song.description}
-              </Text>
-            </div>
-            <Flex justify="between" align="center">
-              <Text size="1" color="gray">
-                {song.file}
-              </Text>
-              <Flex gap="2">
-                <Button
-                  size="1"
-                  variant="outline"
-                  onClick={() => handleEdit(song.file)}
-                >
-                  <Pencil1Icon />
-                </Button>
-                <Button
-                  size="1"
-                  variant="outline"
-                  color="red"
-                  onClick={() => handleDelete(song.file)}
-                >
-                  <TrashIcon />
-                </Button>
+            <div className="grid h-full" style={{ gridTemplateRows: '1fr min-content' }}>
+              <div className="mb-4">
+                <Heading size="4" className="mb-2 block">
+                  {song.titleLatin}
+                </Heading>
+                <Text size="1" color="gray" className="mb-3 block">
+                  {song.title}
+                </Text>
+                <Text size="1" color="gray" className="mb-3 block">
+                  {song.description}
+                </Text>
+              </div>
+              <Flex justify="between" align="center">
+                <Text size="1" color="gray">
+                  {song.file}
+                </Text>
+                <Flex gap="2">
+                  <Button
+                    size="1"
+                    variant="outline"
+                    onClick={() => handleEdit(song.file)}
+                  >
+                    <Pencil1Icon />
+                  </Button>
+                  <Button
+                    size="1"
+                    variant="outline"
+                    color="red"
+                    onClick={() => handleDelete(song.file)}
+                  >
+                    <TrashIcon />
+                  </Button>
+                </Flex>
               </Flex>
-            </Flex>
+            </div>
           </Card>
         ))}
       </div>

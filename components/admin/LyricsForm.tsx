@@ -113,7 +113,13 @@ export function LyricsForm({ onSave, onCancel }: LyricsFormProps) {
     titleLatin: '',
     description: '',
   })
-  const [markdownContent, setMarkdownContent] = useState('')
+  const [markdownContent, setMarkdownContent] = useState(`# Georgian
+
+# Transliteration
+
+# Performance
+
+`)
   const [saving, setSaving] = useState(false)
   const [mode, setMode] = useState<'wysiwyg' | 'markdown'>('wysiwyg')
   const [editorUpdateKey, setEditorUpdateKey] = useState(0)
@@ -126,7 +132,7 @@ export function LyricsForm({ onSave, onCancel }: LyricsFormProps) {
       CodeBlock,
     ],
     immediatelyRender: false,
-    content: '',
+    content: '<h1>Georgian</h1><p></p><h1>Transliteration</h1><p></p><h1>Performance</h1><p></p>',
     editorProps: {
       attributes: {
         class: 'prose prose-lg max-w-none focus:outline-none p-4 min-h-96',
