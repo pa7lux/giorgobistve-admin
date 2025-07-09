@@ -1,6 +1,0 @@
-{
-  "/api/github/lyrics/route": "app/api/github/lyrics/route.js",
-  "/page": "app/page.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/api/github/contributors/route": "app/api/github/contributors/route.js"
-}
