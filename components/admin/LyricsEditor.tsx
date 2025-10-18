@@ -154,6 +154,11 @@ export function LyricsEditor({ filename, onSave, onCancel }: LyricsEditorProps) 
   const fetchFile = async () => {
     try {
       const response = await fetch(`/api/github/lyrics/${filename}`)
+      if (response.status === 403) {
+        alert('Access denied. You must be a contributor to access this resource.')
+        onCancel()
+        return
+      }
       const data = await response.json()
       setMarkdownContent(data.content)
       setOriginalSha(data.sha)
@@ -219,11 +224,20 @@ export function LyricsEditor({ filename, onSave, onCancel }: LyricsEditorProps) 
         }),
       })
 
+      if (response.status === 403) {
+        alert('Access denied. You must be a contributor to save files.')
+        return
+      }
+
       if (response.ok) {
         onSave()
+      } else {
+        const errorData = await response.json()
+        alert(`Error saving file: ${errorData.error || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Error saving file:', error)
+      alert('Error saving file. Please try again.')
     } finally {
       setSaving(false)
     }

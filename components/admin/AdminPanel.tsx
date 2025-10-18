@@ -68,6 +68,12 @@ export function AdminPanel() {
   const fetchLyrics = async () => {
     try {
       const response = await fetch('/api/github/lyrics')
+      if (response.status === 403) {
+        // User is not authorized - redirect to sign out or show error
+        console.error('Access denied: User is not a contributor')
+        alert('Access denied. You must be a contributor to access this resource.')
+        return
+      }
       const data = await response.json()
       setLyrics(data)
     } catch (error) {
@@ -95,11 +101,20 @@ export function AdminPanel() {
         method: 'DELETE',
       })
 
+      if (response.status === 403) {
+        alert('Access denied. You must be a contributor to delete files.')
+        return
+      }
+
       if (response.ok) {
         await fetchLyrics()
+      } else {
+        const errorData = await response.json()
+        alert(`Error deleting file: ${errorData.error || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Error deleting file:', error)
+      alert('Error deleting file. Please try again.')
     }
   }
 

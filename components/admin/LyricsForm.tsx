@@ -208,11 +208,20 @@ export function LyricsForm({ onSave, onCancel }: LyricsFormProps) {
         }),
       })
 
+      if (response.status === 403) {
+        alert('Access denied. You must be a contributor to create files.')
+        return
+      }
+
       if (response.ok) {
         onSave()
+      } else {
+        const errorData = await response.json()
+        alert(`Error creating file: ${errorData.error || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Error creating file:', error)
+      alert('Error creating file. Please try again.')
     } finally {
       setSaving(false)
     }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
+import { checkContributorAccess } from '@/lib/github-auth'
 import { Octokit } from 'octokit'
 
 const LYRICS_PATH = 'public/lyrics'
@@ -12,6 +13,12 @@ export async function GET(request: NextRequest) {
     
     if (!session || !session.accessToken) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if user is authorized contributor
+    const contributorCheck = await checkContributorAccess(session.accessToken)
+    if (!contributorCheck.isAuthorized) {
+      return NextResponse.json({ error: 'Access denied. You must be a contributor to access this resource.' }, { status: 403 })
     }
 
     const octokit = new Octokit({
@@ -84,6 +91,12 @@ export async function POST(request: NextRequest) {
     
     if (!session || !session.accessToken) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if user is authorized contributor
+    const contributorCheck = await checkContributorAccess(session.accessToken)
+    if (!contributorCheck.isAuthorized) {
+      return NextResponse.json({ error: 'Access denied. You must be a contributor to access this resource.' }, { status: 403 })
     }
 
     const { filename, content, metadata } = await request.json()
