@@ -230,10 +230,12 @@ export function LyricsEditor({ filename, onSave, onCancel }: LyricsEditorProps) 
       }
 
       if (response.ok) {
+        console.log('File saved successfully')
         onSave()
       } else {
         const errorData = await response.json()
-        alert(`Error saving file: ${errorData.error || 'Unknown error'}`)
+        console.error('Error saving file:', errorData)
+        alert(`Error saving file: ${errorData.error || 'Unknown error'}${errorData.details ? '\nDetails: ' + errorData.details : ''}`)
       }
     } catch (error) {
       console.error('Error saving file:', error)

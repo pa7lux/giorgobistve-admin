@@ -214,10 +214,12 @@ export function LyricsForm({ onSave, onCancel }: LyricsFormProps) {
       }
 
       if (response.ok) {
+        console.log('File created successfully')
         onSave()
       } else {
         const errorData = await response.json()
-        alert(`Error creating file: ${errorData.error || 'Unknown error'}`)
+        console.error('Error creating file:', errorData)
+        alert(`Error creating file: ${errorData.error || 'Unknown error'}${errorData.details ? '\nDetails: ' + errorData.details : ''}`)
       }
     } catch (error) {
       console.error('Error creating file:', error)

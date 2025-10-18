@@ -87,26 +87,42 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('POST /api/github/lyrics - Starting file creation...')
+    
     const session = await getServerSession(authOptions)
     
     if (!session || !session.accessToken) {
+      console.log('POST /api/github/lyrics - No session or access token')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    console.log('POST /api/github/lyrics - Session found, checking contributor access...')
 
     // Check if user is authorized contributor
     const contributorCheck = await checkContributorAccess(session.accessToken)
     if (!contributorCheck.isAuthorized) {
+      console.log('POST /api/github/lyrics - User not authorized:', contributorCheck)
       return NextResponse.json({ error: 'Access denied. You must be a contributor to access this resource.' }, { status: 403 })
     }
 
+    console.log('POST /api/github/lyrics - User authorized, parsing request...')
+
     const { filename, content, metadata } = await request.json()
+    
+    console.log('POST /api/github/lyrics - Request data:', {
+      filename,
+      contentLength: content?.length,
+      metadata
+    })
 
     const octokit = new Octokit({
       auth: session.accessToken,
     })
 
+    console.log('POST /api/github/lyrics - Creating file in GitHub...')
+
     // Create the file
-    await octokit.rest.repos.createOrUpdateFileContents({
+    const fileResult = await octokit.rest.repos.createOrUpdateFileContents({
       owner: process.env.GITHUB_OWNER!,
       repo: process.env.GITHUB_REPO!,
       path: `${LYRICS_PATH}/${filename}`,
@@ -114,7 +130,11 @@ export async function POST(request: NextRequest) {
       content: Buffer.from(content).toString('base64'),
     })
 
+    console.log('POST /api/github/lyrics - File created successfully:', fileResult.data.commit.sha)
+
     // Update index.json
+    console.log('POST /api/github/lyrics - Fetching index.json...')
+    
     const { data: indexFile } = await octokit.rest.repos.getContent({
       owner: process.env.GITHUB_OWNER!,
       repo: process.env.GITHUB_REPO!,
@@ -125,6 +145,9 @@ export async function POST(request: NextRequest) {
       Buffer.from((indexFile as any).content, 'base64').toString()
     )
 
+    console.log('POST /api/github/lyrics - Current index.json songs count:', indexContent.songs?.length || 0)
+
+    indexContent.songs = indexContent.songs || []
     indexContent.songs.push({
       id: metadata.id,
       title: metadata.title,
@@ -133,7 +156,9 @@ export async function POST(request: NextRequest) {
       file: filename,
     })
 
-    await octokit.rest.repos.createOrUpdateFileContents({
+    console.log('POST /api/github/lyrics - Updating index.json with new song...')
+
+    const indexResult = await octokit.rest.repos.createOrUpdateFileContents({
       owner: process.env.GITHUB_OWNER!,
       repo: process.env.GITHUB_REPO!,
       path: INDEX_PATH,
@@ -142,9 +167,24 @@ export async function POST(request: NextRequest) {
       sha: (indexFile as any).sha,
     })
 
+    console.log('POST /api/github/lyrics - Index.json updated successfully:', indexResult.data.commit.sha)
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error creating file:', error)
-    return NextResponse.json({ error: 'Failed to create file' }, { status: 500 })
+    
+    // More detailed error logging
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      })
+    }
+    
+    return NextResponse.json({ 
+      error: 'Failed to create file', 
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 } 
